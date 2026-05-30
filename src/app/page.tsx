@@ -2097,7 +2097,12 @@ export default function Home() {
                   <div className="border-t border-white/10 pt-4 space-y-2 text-[9px] text-zinc-500">
                     <div className="flex justify-between font-bold text-white text-xs">
                       <span>SECURED CHANNELS</span>
-                      <span>{Object.keys(answers).length || 1} / {questions.length}</span>
+                      <span>
+                        {questions.filter(q => {
+                          const val = q.id === "q-alias" && googleUser ? googleUser.name : answers[q.id];
+                          return val !== undefined && val !== null && val !== "";
+                        }).length} / {questions.length}
+                      </span>
                     </div>
                     <div className="text-center pt-2 italic text-zinc-500">
                       * RECORD PERSISTED TO NEON POSTGRES CLOUD *
@@ -2135,18 +2140,12 @@ export default function Home() {
                   </div>
 
                   {/* Controls */}
-                  <div className="print-btn-group flex gap-2 pt-2">
-                    <button
-                      onClick={() => { playOrganicClick(); window.print(); }}
-                      className="flex-1 py-3 text-xs font-bold rounded-xl bg-white text-black hover:bg-zinc-200 transition text-center cursor-pointer"
-                    >
-                      📄 EXPORT PDF / PRINT
-                    </button>
+                  <div className="flex pt-3">
                     <button
                       onClick={() => { playSoftWhoosh(); setIsSubmitted(false); setSuccessGlow(false); }}
-                      className="py-3 px-5 text-xs font-bold rounded-xl bg-white/5 hover:bg-white/10 transition text-center cursor-pointer"
+                      className="w-full py-3 text-xs font-bold rounded-xl bg-white text-black hover:bg-zinc-200 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 text-center cursor-pointer shadow-lg shadow-white/5"
                     >
-                      CLOSE
+                      DONE
                     </button>
                   </div>
 
