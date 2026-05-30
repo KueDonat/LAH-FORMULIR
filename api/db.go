@@ -1,4 +1,4 @@
-package main
+package handler
 
 import (
 	"database/sql"
@@ -13,6 +13,11 @@ var DB *sql.DB
 
 // InitDB initializes PostgreSQL connection with retries and runs migrations
 func InitDB() {
+	// Optimization for serverless: reuse existing connection if already established
+	if DB != nil {
+		return
+	}
+
 	var err error
 	
 	// Get database URL from env or use default Neon cloud database

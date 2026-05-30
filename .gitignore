@@ -1,26 +1,52 @@
-# Next.js / Node.js
-node_modules/
-.next/
-out/
-build/
-.env*.local
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.pnpm-debug.log*
 
-# Go compiled binaries
-backend/server
-backend/server.exe
+# env files
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# Go compiled binaries & testing
+server
+server.exe
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
 
-# Local configurations / IDEs
-.idea/
-.vscode/
-.DS_Store
-Thumbs.db
-*.local
-*.log
+# Legacy project directories
+/backend/
+/frontend/

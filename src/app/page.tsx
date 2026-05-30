@@ -72,7 +72,7 @@ const timeStringID = () => {
   return Date.now().toString(36) + Math.random().toString(36).substring(2, 6);
 };
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 export default function Home() {
   // --- AUTH & GOOGLE DUAL ACTOR STATE ---
