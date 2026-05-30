@@ -1134,6 +1134,20 @@ export default function Home() {
     setFormsList(prev => prev.filter(f => f.id !== id));
   };
 
+  const copyShareLink = (id: string) => {
+    playOrganicClick();
+    if (typeof window === "undefined") return;
+    const shareUrl = `${window.location.origin}/?formId=${id}`;
+    navigator.clipboard.writeText(shareUrl)
+      .then(() => {
+        playChime();
+        alert("Share link copied to clipboard!\nSend this link to respondents to fill out your form.");
+      })
+      .catch(() => {
+        alert(`Failed to copy. Share this link:\n${shareUrl}`);
+      });
+  };
+
   const saveFormDesign = async () => {
     playOrganicClick();
     if (!googleUser) return;
@@ -1406,6 +1420,14 @@ export default function Home() {
                       >
                         💾 SAVE DESIGN
                       </button>
+                      {formId && (
+                        <button
+                          onClick={() => copyShareLink(formId)}
+                          className="px-4 py-2 text-xs font-bold rounded-xl bg-indigo-600/10 border border-indigo-500/30 hover:bg-indigo-600/20 text-indigo-300 transition duration-300 flex items-center gap-1 cursor-pointer"
+                        >
+                          🔗 SHARE LINK
+                        </button>
+                      )}
                     </>
                   )}
                 </>
@@ -1495,6 +1517,12 @@ export default function Home() {
                               </div>
                               <div className="flex items-center gap-2 w-full md:w-auto justify-end">
                                 <button
+                                  onClick={() => copyShareLink(f.id)}
+                                  className="px-3.5 py-2 text-[9px] font-black rounded-lg bg-indigo-500/10 border border-indigo-500/30 hover:bg-indigo-500/25 text-indigo-300 transition uppercase cursor-pointer"
+                                >
+                                  🔗 SHARE
+                                </button>
+                                <button
                                   onClick={() => navigateToForm(f.id, f.creator_email, f.collaborators, f.title, f.description, f.fields, f.stickers)}
                                   className="px-3.5 py-2 text-[9px] font-black rounded-lg bg-purple-500/10 border border-purple-500/30 hover:bg-purple-500/25 text-purple-300 transition uppercase cursor-pointer"
                                 >
@@ -1561,6 +1589,12 @@ export default function Home() {
                                 </div>
                               </div>
                               <div className="flex items-center gap-2 w-full md:w-auto justify-end">
+                                <button
+                                  onClick={() => copyShareLink(f.id)}
+                                  className="px-3.5 py-2 text-[9px] font-black rounded-lg bg-indigo-500/10 border border-indigo-500/30 hover:bg-indigo-500/25 text-indigo-300 transition uppercase cursor-pointer"
+                                >
+                                  🔗 SHARE
+                                </button>
                                 <button
                                   onClick={() => navigateToForm(f.id, f.creator_email, f.collaborators, f.title, f.description, f.fields, f.stickers)}
                                   className="px-3.5 py-2 text-[9px] font-black rounded-lg bg-indigo-500/10 border border-indigo-500/30 hover:bg-indigo-500/25 text-indigo-300 transition uppercase cursor-pointer"
