@@ -472,6 +472,77 @@ func deleteFormHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"message": "Form deleted successfully", "id": formID})
 }
 
+// DELETE /api/forms/{id}/responses/{response_id} - Delete a single response
+func deleteSingleResponseHandler(w http.ResponseWriter, r *http.Request) {
+	if enableCORS(w, r) {
+		return
+	}
+
+	if r.Method != http.MethodDelete {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	parts := strings.Split(r.URL.Path, "/")
+	if len(parts) < 6 || parts[3] == "" || parts[5] == "" {
+		http.Error(w, "Missing Form ID or Response ID", http.StatusBadRequest)
+		return
+	}
+	formID := parts[3]
+	responseID := parts[5]
+
+	if DB == nil {
+		http.Error(w, "Database connection unavailable", http.StatusServiceUnavailable)
+		return
+	}
+
+	query := `DELETE FROM responses WHERE id = $1 AND form_id = $2;`
+	_, err := DB.Exec(query, responseID, formID)
+	if err != nil {
+		log.Printf("DB Error deleting response %s: %v", responseID, err)
+		http.Error(w, "Database error deleting response", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"message": "Response deleted successfully", "id": responseID})
+}
+
+// DELETE /api/forms/{id}/responses - Delete all responses for a form
+func deleteAllResponsesHandler(w http.ResponseWriter, r *http.Request) {
+	if enableCORS(w, r) {
+		return
+	}
+
+	if r.Method != http.MethodDelete {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	parts := strings.Split(r.URL.Path, "/")
+	if len(parts) < 4 || parts[3] == "" {
+		http.Error(w, "Missing Form ID", http.StatusBadRequest)
+		return
+	}
+	formID := parts[3]
+
+	if DB == nil {
+		http.Error(w, "Database connection unavailable", http.StatusServiceUnavailable)
+		return
+	}
+
+	query := `DELETE FROM responses WHERE form_id = $1;`
+	_, err := DB.Exec(query, formID)
+	if err != nil {
+		log.Printf("DB Error deleting all responses for form %s: %v", formID, err)
+		http.Error(w, "Database error deleting responses", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"message": "All responses deleted successfully", "form_id": formID})
+}
+
 // --- SERVERLESS ENTRYPOINT ROUTER ---
 
 // Handler is the serverless entrypoint for Vercel Go runtime.
@@ -511,6 +582,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		// 2. PUT /api/forms/{id} (length 4: ["", "api", "forms", "{id}"])
 		// 3. POST /api/forms/{id}/responses (length 5: ["", "api", "forms", "{id}", "responses"])
 		// 4. GET /api/forms/{id}/responses (length 5: ["", "api", "forms", "{id}", "responses"])
+		// 5. DELETE /api/forms/{id}/responses/{response_id} (length 6)
 
 		if len(parts) == 4 && parts[3] != "" {
 			if r.Method == http.MethodGet {
@@ -530,6 +602,17 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 				submitResponseHandler(w, r)
 			} else if r.Method == http.MethodGet {
 				getResponsesHandler(w, r)
+			} else if r.Method == http.MethodDelete {
+				deleteAllResponsesHandler(w, r)
+			} else {
+				http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			}
+			return
+		}
+
+		if len(parts) == 6 && parts[3] != "" && parts[4] == "responses" && parts[5] != "" {
+			if r.Method == http.MethodDelete {
+				deleteSingleResponseHandler(w, r)
 			} else {
 				http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 			}

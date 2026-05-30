@@ -531,6 +531,69 @@ export default function Home() {
     }, 400);
   };
 
+  const deleteSingleResponse = async (responseId: string) => {
+    if (!window.confirm("Are you sure you want to delete this respondent record permanently?")) {
+      return;
+    }
+    
+    playSoftWhoosh();
+    if (isBackendConnected && formId) {
+      try {
+        const res = await fetch(`${API_URL}/api/forms/${formId}/responses/${responseId}`, {
+          method: "DELETE"
+        });
+        if (res.ok) {
+          logTerminal(`Successfully deleted respondent record #${responseId} from PostgreSQL.`);
+          setResponsesList(prev => prev.filter(r => r.id !== responseId));
+          alert("Respondent record deleted successfully!");
+          return;
+        }
+      } catch (err) {
+        logTerminal("Error deleting response from Go backend.");
+      }
+    }
+
+    // Fallback: LocalStorage delete
+    const allSubmissions = JSON.parse(localStorage.getItem("rebel_zine_responses") || "[]");
+    const updated = allSubmissions.filter((sub: any) => sub.id !== responseId);
+    localStorage.setItem("rebel_zine_responses", JSON.stringify(updated));
+    setResponsesList(prev => prev.filter(r => r.id !== responseId));
+    logTerminal(`Successfully deleted local respondent record #${responseId}.`);
+    alert("Respondent record deleted!");
+  };
+
+  const deleteAllResponses = async () => {
+    if (!window.confirm("WARNING: Are you sure you want to delete ALL respondent records for this form permanently? This cannot be undone!")) {
+      return;
+    }
+    
+    playSoftWhoosh();
+    if (isBackendConnected && formId) {
+      try {
+        const res = await fetch(`${API_URL}/api/forms/${formId}/responses`, {
+          method: "DELETE"
+        });
+        if (res.ok) {
+          logTerminal(`Successfully cleared all respondent records for form ${formId} from PostgreSQL.`);
+          setResponsesList([]);
+          alert("All respondent records deleted successfully!");
+          return;
+        }
+      } catch (err) {
+        logTerminal("Error clearing responses from Go backend.");
+      }
+    }
+
+    // Fallback: LocalStorage clear all responses for this form
+    const allSubmissions = JSON.parse(localStorage.getItem("rebel_zine_responses") || "[]");
+    const targetId = formId || "local";
+    const updated = allSubmissions.filter((sub: any) => sub.formId !== targetId);
+    localStorage.setItem("rebel_zine_responses", JSON.stringify(updated));
+    setResponsesList([]);
+    logTerminal(`Successfully cleared all local respondent records for form ${targetId}.`);
+    alert("All respondent records deleted!");
+  };
+
   // --- SINGLE RESPONSE HIGH-FIDELITY PRINT EXPORT ---
   const printSingleResponse = (resp: FormResponse, aliasVal: string, userMeta: GoogleUser | null) => {
     playOrganicClick();
@@ -2217,6 +2280,12 @@ export default function Home() {
                               >
                                 📄 EXPORT PDF
                               </button>
+                              <button
+                                onClick={() => deleteSingleResponse(resp.id)}
+                                className="text-[8px] font-black px-2.5 py-1 bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 text-red-400 rounded-lg transition duration-200 cursor-pointer"
+                              >
+                                🗑️ DELETE
+                              </button>
                             </div>
                           </div>
                           
@@ -2243,19 +2312,31 @@ export default function Home() {
                   </div>
                 )}
 
-                <div className="flex justify-end gap-2.5 pt-2 border-t border-white/10">
-                  <button
-                    onClick={printAllResponses}
-                    className="py-3 px-6 text-xs font-black rounded-xl bg-purple-500 text-black hover:bg-purple-400 transition cursor-pointer shadow-lg shadow-purple-500/10"
-                  >
-                    📄 EXPORT ALL TO PDF
-                  </button>
-                  <button
-                    onClick={() => { playSoftWhoosh(); setViewingResponses(false); }}
-                    className="py-3 px-6 text-xs font-bold rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-zinc-300 transition cursor-pointer"
-                  >
-                    CLOSE FEED
-                  </button>
+                <div className="flex justify-between items-center pt-3 border-t border-white/10 w-full gap-2 flex-wrap">
+                  <div>
+                    {responsesList.length > 0 && (
+                      <button
+                        onClick={deleteAllResponses}
+                        className="py-3 px-4 text-xs font-black rounded-xl bg-red-500/10 border border-red-500/30 hover:bg-red-500/25 text-red-400 hover:scale-[1.02] active:scale-[0.98] transition cursor-pointer"
+                      >
+                        🗑️ DELETE ALL
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex gap-2.5 flex-wrap">
+                    <button
+                      onClick={printAllResponses}
+                      className="py-3 px-5 text-xs font-black rounded-xl bg-purple-500 text-black hover:bg-purple-400 hover:scale-[1.02] active:scale-[0.98] transition cursor-pointer shadow-lg shadow-purple-500/10"
+                    >
+                      📄 EXPORT ALL TO PDF
+                    </button>
+                    <button
+                      onClick={() => { playSoftWhoosh(); setViewingResponses(false); }}
+                      className="py-3 px-5 text-xs font-bold rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-zinc-300 transition cursor-pointer"
+                    >
+                      CLOSE FEED
+                    </button>
+                  </div>
                 </div>
 
               </div>
