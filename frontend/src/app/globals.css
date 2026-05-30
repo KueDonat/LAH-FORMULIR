@@ -1,0 +1,265 @@
+@import "tailwindcss";
+
+:root {
+  --background: #09090b;
+  --foreground: #fafafa;
+  --font-display: var(--font-outfit), sans-serif;
+  --font-body: var(--font-inter), sans-serif;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-inter);
+}
+
+/* Soothing Mesh Gradient background with slowly floating ambient light balls */
+body {
+  background-color: #09090b;
+  color: #fafafa;
+  font-family: var(--font-body);
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Background Glowing Orbs (GPU Accelerated) */
+.ambient-glow-wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.glow-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(140px);
+  opacity: 0.12;
+  mix-blend-mode: screen;
+}
+
+.orb-indigo {
+  width: 500px;
+  height: 500px;
+  background: #6366f1;
+  top: -10%;
+  left: 10%;
+  animation: float-orb-1 25s ease-in-out infinite alternate;
+}
+
+.orb-purple {
+  width: 600px;
+  height: 600px;
+  background: #a855f7;
+  bottom: -10%;
+  right: 10%;
+  animation: float-orb-2 30s ease-in-out infinite alternate;
+}
+
+@keyframes float-orb-1 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(80px, 60px) scale(1.1); }
+  100% { transform: translate(-40px, 120px) scale(0.95); }
+}
+
+@keyframes float-orb-2 {
+  0% { transform: translate(0, 0) scale(0.95); }
+  50% { transform: translate(-100px, -50px) scale(1.15); }
+  100% { transform: translate(60px, -100px) scale(1); }
+}
+
+/* Premium Frosted Glassmorphism Panel */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 24px 50px -12px rgba(0, 0, 0, 0.5);
+  border-radius: 20px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-panel:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 30px 60px -10px rgba(99, 102, 241, 0.08);
+}
+
+/* Elastic Spring Transitions for dynamic lists */
+.spring-transition {
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Sleek Glowing Inputs */
+.sleek-input {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 13px;
+  font-family: var(--font-body);
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.sleek-input:focus {
+  outline: none;
+  border-color: rgba(168, 85, 247, 0.7);
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: 0 0 18px rgba(168, 85, 247, 0.25), inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Elegant Floating Geometric Vector Gems */
+.floating-gem {
+  position: absolute;
+  cursor: grab;
+  user-select: none;
+  filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.3));
+  transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+  animation: gem-idle-float 6s ease-in-out infinite alternate;
+}
+
+.floating-gem:active {
+  cursor: grabbing;
+  transform: scale(1.12) !important;
+  filter: drop-shadow(0 20px 30px rgba(168, 85, 247, 0.4));
+}
+
+@keyframes gem-idle-float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(1.5deg); }
+  100% { transform: translateY(4px) rotate(-1deg); }
+}
+
+/* Foil Rainbow Shimmer for Gem reflections */
+.gem-holo-overlay {
+  position: relative;
+  overflow: hidden;
+}
+
+.gem-holo-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.15) 35%,
+    rgba(168, 85, 247, 0.25) 50%,
+    rgba(99, 102, 241, 0.25) 65%,
+    transparent 80%
+  );
+  background-size: 200% 200%;
+  mix-blend-mode: color-dodge;
+  opacity: 0.4;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.gem-holo-overlay:hover::after {
+  opacity: 0.85;
+  animation: gem-shimmer 2.2s linear infinite;
+}
+
+@keyframes gem-shimmer {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 200% 200%; }
+}
+
+/* 3D Frosted Glass Receipt Recap Card */
+.glass-receipt {
+  background: rgba(18, 18, 22, 0.65);
+  backdrop-filter: blur(35px);
+  -webkit-backdrop-filter: blur(35px);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 35px 70px -15px rgba(0, 0, 0, 0.8), 0 0 40px rgba(168, 85, 247, 0.08);
+  border-radius: 24px;
+  color: #e4e4e7;
+  font-family: var(--font-body);
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.glass-receipt-inner {
+  transform: translateZ(20px);
+}
+
+/* Ascending glow circle indicator on success */
+.success-glow-ring {
+  box-shadow: 0 0 30px rgba(168, 85, 247, 0.4);
+  animation: glow-ring-pulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow-ring-pulse {
+  0% { transform: scale(1); box-shadow: 0 0 20px rgba(168, 85, 247, 0.3); }
+  100% { transform: scale(1.05); box-shadow: 0 0 40px rgba(99, 102, 241, 0.5); }
+}
+
+/* Pill Choice tags */
+.pill-choice {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.pill-choice:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.pill-choice.selected {
+  background: rgba(168, 85, 247, 0.15);
+  border-color: rgba(168, 85, 247, 0.7);
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.2);
+}
+
+/* Print Only Layout Rules (High Contrast Light mode for Printing) */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #111111 !important;
+  }
+  
+  .ambient-glow-wrapper,
+  .no-print,
+  #factory-controls,
+  button {
+    display: none !important;
+  }
+  
+  #receipt-overlay-container {
+    position: static !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+  
+  .glass-receipt {
+    background: #ffffff !important;
+    color: #111111 !important;
+    border: 1px solid #cccccc !important;
+    box-shadow: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    backdrop-filter: none !important;
+  }
+  
+  .glass-receipt-inner {
+    transform: none !important;
+  }
+
+  .text-stone-400, .text-stone-500, .text-zinc-400 {
+    color: #444444 !important;
+  }
+}
