@@ -437,6 +437,41 @@ func updateFormHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(req)
 }
 
+// DELETE /api/forms/{id} - Delete an existing form design
+func deleteFormHandler(w http.ResponseWriter, r *http.Request) {
+	if enableCORS(w, r) {
+		return
+	}
+
+	if r.Method != http.MethodDelete {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	parts := strings.Split(r.URL.Path, "/")
+	if len(parts) < 4 || parts[3] == "" {
+		http.Error(w, "Missing Form ID", http.StatusBadRequest)
+		return
+	}
+	formID := parts[3]
+
+	if DB == nil {
+		http.Error(w, "Database connection unavailable", http.StatusServiceUnavailable)
+		return
+	}
+
+	query := `DELETE FROM forms WHERE id = $1;`
+	_, err := DB.Exec(query, formID)
+	if err != nil {
+		log.Printf("DB Error deleting form %s: %v", formID, err)
+		http.Error(w, "Database error deleting form", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"message": "Form deleted successfully", "id": formID})
+}
+
 // --- SERVERLESS ENTRYPOINT ROUTER ---
 
 // Handler is the serverless entrypoint for Vercel Go runtime.
@@ -482,6 +517,8 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 				getFormHandler(w, r)
 			} else if r.Method == http.MethodPut {
 				updateFormHandler(w, r)
+			} else if r.Method == http.MethodDelete {
+				deleteFormHandler(w, r)
 			} else {
 				http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 			}

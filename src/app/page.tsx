@@ -1103,6 +1103,37 @@ export default function Home() {
     logTerminal("Created new form in Sandbox Mode (local cache only).");
   };
 
+  const deleteForm = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    playOrganicClick();
+    if (!window.confirm("Are you sure you want to delete this form design permanently? This will also delete all submitted responses!")) {
+      return;
+    }
+
+    if (isBackendConnected && !id.startsWith("local")) {
+      try {
+        const res = await fetch(`${API_URL}/api/forms/${id}`, {
+          method: "DELETE"
+        });
+        if (res.ok) {
+          logTerminal(`Form ${id} successfully deleted from PostgreSQL database.`);
+          alert("Form successfully deleted!");
+          if (googleUser) {
+            loadFormsList(googleUser.email);
+          }
+          return;
+        }
+      } catch (err) {
+        logTerminal("Error deleting form from postgres backend.");
+      }
+    }
+
+    // Fallback sandbox deletion
+    logTerminal(`Form ${id} successfully deleted locally.`);
+    alert("Form deleted!");
+    setFormsList(prev => prev.filter(f => f.id !== id));
+  };
+
   const saveFormDesign = async () => {
     playOrganicClick();
     if (!googleUser) return;
@@ -1318,6 +1349,89 @@ export default function Home() {
               <div className="flex justify-center py-2 min-h-[46px]">
                 <div id="official-google-btn-container" className="glow-focus"></div>
               </div>
+
+              {/* Subtle divider */}
+              <div className="flex items-center justify-center gap-2 pt-2">
+                <span className="h-[1px] w-full bg-white/5"></span>
+                <span className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest font-mono">OR</span>
+                <span className="h-[1px] w-full bg-white/5"></span>
+              </div>
+
+              {/* Toggle to Sandbox Bypass */}
+              <div className="text-center">
+                {!googleSelectorOpen ? (
+                  <button
+                    onClick={() => { playOrganicClick(); setGoogleSelectorOpen(true); }}
+                    className="text-[10px] font-bold text-purple-400 hover:text-purple-300 transition uppercase tracking-wider underline decoration-purple-500/30 cursor-pointer"
+                  >
+                    🛠️ Use Sandbox Mock Accounts
+                  </button>
+                ) : (
+                  <div className="space-y-4 pt-2 text-left animate-[fade-in_0.3s_ease]">
+                    <div className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider mb-2 text-center">
+                      Choose a Sandbox Persona
+                    </div>
+                    
+                    {/* Mock accounts list */}
+                    <div className="space-y-2">
+                      {MOCK_GOOGLE_ACCOUNTS.map((acc) => (
+                        <button
+                          key={acc.email}
+                          onClick={() => selectGoogleAccount(acc.name, acc.email, acc.picture)}
+                          className="w-full flex items-center justify-between p-3 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 hover:border-purple-500/30 transition text-left cursor-pointer"
+                        >
+                          <div className="flex items-center gap-3">
+                            {renderAvatar(undefined, acc.name)}
+                            <div>
+                              <div className="text-xs font-bold text-white">{acc.name}</div>
+                              <div className="text-[9px] text-zinc-400 font-mono">{acc.email}</div>
+                            </div>
+                          </div>
+                          <span className="text-[8px] font-bold text-purple-400 uppercase tracking-widest font-mono">SELECT</span>
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Custom Sandbox Login Form */}
+                    <form onSubmit={submitCustomGoogleAccount} className="space-y-2 border-t border-white/5 pt-3 mt-3">
+                      <div className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider text-center mb-2">
+                        Or Create Custom Persona
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="ENTER NAME"
+                        value={customName}
+                        onChange={(e) => setCustomName(e.target.value)}
+                        className="w-full px-3 py-2 text-xs rounded-xl bg-zinc-950 border border-white/10 text-white focus:outline-none focus:border-purple-500/50 uppercase tracking-wider"
+                        required
+                      />
+                      <input
+                        type="email"
+                        placeholder="ENTER EMAIL"
+                        value={customEmail}
+                        onChange={(e) => setCustomEmail(e.target.value)}
+                        className="w-full px-3 py-2 text-xs rounded-xl bg-zinc-950 border border-white/10 text-white focus:outline-none focus:border-purple-500/50"
+                        required
+                      />
+                      <button
+                        type="submit"
+                        className="w-full py-2 text-xs font-bold rounded-xl bg-purple-500 hover:bg-purple-400 text-black transition shadow-lg shadow-purple-500/20 cursor-pointer"
+                      >
+                        ⚡ ENTER DEVELOPER MODE
+                      </button>
+                    </form>
+
+                    <div className="text-center pt-2">
+                      <button
+                        onClick={() => { playOrganicClick(); setGoogleSelectorOpen(false); }}
+                        className="text-[9px] font-bold text-zinc-500 hover:text-zinc-400 transition uppercase tracking-wider cursor-pointer"
+                      >
+                        ← Back to Google Auth
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="text-center text-[7px] text-zinc-500 font-mono tracking-widest uppercase border-t border-white/5 pt-4">
@@ -1477,6 +1591,12 @@ export default function Home() {
                                   className="px-3.5 py-2 text-[9px] font-black rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-zinc-300 transition uppercase cursor-pointer"
                                 >
                                   📊 FEED
+                                </button>
+                                <button
+                                  onClick={(e) => deleteForm(f.id, e)}
+                                  className="px-3.5 py-2 text-[9px] font-black rounded-lg bg-red-500/10 border border-red-500/30 hover:bg-red-500/25 text-red-300 transition uppercase cursor-pointer"
+                                >
+                                  🗑️ DELETE
                                 </button>
                               </div>
                             </div>
